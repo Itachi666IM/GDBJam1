@@ -13,6 +13,13 @@ public class Enemy : MonoBehaviour
     public AudioSource myAudio;
     public AudioClip death;
 
+    Player player;
+
+    private void Start()
+    {
+        player = FindObjectOfType<Player>();
+    }
+
     public void TakeDamage(int damageAmount)
     {
         health -= damageAmount;
@@ -22,15 +29,21 @@ public class Enemy : MonoBehaviour
         }
         if (health <= 0)
         {
+            if(isBoss)
+            {
+                player.isBossDead = true;
+            }
             myAudio.PlayOneShot(death);
             Instantiate(deathEffect, transform.position, transform.rotation);
             Destroy(gameObject);
         }
     }
 
+    
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "Player")
+        if (collision.tag == "Player")
         {
             collision.GetComponent<Player>().isDead = true;
         }

@@ -31,6 +31,8 @@ public class Player : MonoBehaviour
 
     public GameObject deathEffect;
     public GameObject slashEffect;
+
+    [HideInInspector] public bool isBossDead; 
     // Start is called before the first frame update
     void Start()
     {
@@ -62,12 +64,22 @@ public class Player : MonoBehaviour
             }
             
         }
+
+        if(isBossDead)
+        {
+            Invoke(nameof(BossFightOver), 2f);
+        }
         
     }
 
     void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void BossFightOver()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     void Walk()
