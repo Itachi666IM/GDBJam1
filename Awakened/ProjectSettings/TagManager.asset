@@ -13,7 +13,7 @@ TagManager:
   - UI
   - Particles
   - Player
-  - 
+  - Platform
   - 
   - 
   - 
@@ -46,4 +46,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 41970033
+    locked: 0
+  - name: Platform
+    uniqueID: 2236888581
     locked: 0
