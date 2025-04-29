@@ -1,41 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
     Rigidbody2D rb;
+    Vector2 moveDirection;
     public float speed;
     public float jumpSpeed;
     public LayerMask groundLayer;
-
-    BoxCollider2D myFeetCollider;
+    public Transform myFeet;
+    public Transform jumpTarget;
     bool isGrounded;
     bool isFacingRight = true;
     bool once;
     [HideInInspector]public bool isDead;
     Animator anim;
 
-    float inputX;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        myFeetCollider = GetComponent<BoxCollider2D>();
     }
     private void Update()
     {
         if (!isDead)
         {
-            inputX = Input.GetAxisRaw("Horizontal");
-            
-            isGrounded = myFeetCollider.IsTouchingLayers(groundLayer);
 
-            if (isGrounded && Input.GetKeyDown(KeyCode.Space))
-            {
-                Jump();
-            }
+            isGrounded = Physics2D.OverlapCircle(myFeet.position, 0.1f, groundLayer);
             FlipSprite();
             Walk();
         }
@@ -53,17 +47,9 @@ public class Player : MonoBehaviour
         
     }
 
-   
-    void Jump()
-    {
-        Debug.Log("jumping");
-        anim.SetTrigger("jump");
-        rb.velocity = Vector2.up * jumpSpeed;
-    }
-
     void Walk()
     {
-        Vector2 playerVelocity = new Vector2(inputX,0) * speed;
+        Vector2 playerVelocity = new Vector2(moveDirection.x,0) * speed;
         rb.velocity = playerVelocity;
 
         if(Mathf.Abs(playerVelocity.x) >0)
@@ -75,16 +61,29 @@ public class Player : MonoBehaviour
             anim.SetBool("isRunning",false);
         }
     }
-    
 
+    void OnMove(InputValue value)
+    {
+        moveDirection = value.Get<Vector2>();
+    }
+    
+    void OnJump(InputValue value)
+    {
+        if(value.isPressed && isGrounded)
+        {
+            Debug.Log("jumping");
+            anim.SetTrigger("jump");
+            transform.position = Vector2.MoveTowards(transform.position, jumpTarget.position,1.6f);
+        }
+    }
     void FlipSprite()
     {
-        if(inputX<0 && isFacingRight)
+        if(moveDirection.x<0 && isFacingRight)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.x,180f,transform.rotation.z);
             isFacingRight = false;
         }
-        else if(inputX>0 && !isFacingRight)
+        else if(moveDirection.x>0 && !isFacingRight)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.x, 0f, transform.rotation.z);
             isFacingRight = true;
