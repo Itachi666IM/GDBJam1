@@ -14,8 +14,8 @@ TagManager:
   - Particles
   - Player
   - Platform
-  - 
-  - 
+  - Background
+  - Interactable
   - 
   - 
   - 
@@ -41,8 +41,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 768458277
+    locked: 0
   - name: Particles
     uniqueID: 1678204401
+    locked: 0
+  - name: Interactable
+    uniqueID: 1866679607
     locked: 0
   - name: Player
     uniqueID: 41970033
