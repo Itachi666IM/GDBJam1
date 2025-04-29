@@ -1,50 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
     Rigidbody2D rb;
-    Vector2 moveDirection;
     public float speed;
     public float jumpSpeed;
-    public Transform myFeet;
     public LayerMask groundLayer;
+
+    BoxCollider2D myFeetCollider;
     bool isGrounded;
     bool isFacingRight = true;
-
+    bool once;
+    [HideInInspector]public bool isDead;
     Animator anim;
+
+    float inputX;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        myFeetCollider = GetComponent<BoxCollider2D>();
     }
     private void Update()
     {
-        isGrounded = Physics2D.OverlapCircle(myFeet.position, 0.1f, groundLayer);
-        FlipSprite();
-        Walk();
-        if(Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (!isDead)
         {
-            anim.SetTrigger("jump");
-            rb.velocity = Vector2.up * jumpSpeed;
+            inputX = Input.GetAxisRaw("Horizontal");
+            
+            isGrounded = myFeetCollider.IsTouchingLayers(groundLayer);
+
+            if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+            {
+                Jump();
+            }
+            FlipSprite();
+            Walk();
         }
+        else
+        {
+            if(!once)
+            {
+                once = true;
+                anim.SetTrigger("dead");
+                rb.gravityScale = 0;
+                rb.velocity = Vector2.zero;
+            }
+            
+        }
+        
     }
 
-    void OnMove(InputValue value)
+   
+    void Jump()
     {
-        if(value != null)
-        {
-            moveDirection = value.Get<Vector2>();
-        }
+        Debug.Log("jumping");
+        anim.SetTrigger("jump");
+        rb.velocity = Vector2.up * jumpSpeed;
     }
-
 
     void Walk()
     {
-        Vector2 playerVelocity = new Vector2(moveDirection.x,0) * speed;
+        Vector2 playerVelocity = new Vector2(inputX,0) * speed;
         rb.velocity = playerVelocity;
 
         if(Mathf.Abs(playerVelocity.x) >0)
@@ -60,12 +79,12 @@ public class Player : MonoBehaviour
 
     void FlipSprite()
     {
-        if(moveDirection.x<0 && isFacingRight)
+        if(inputX<0 && isFacingRight)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.x,180f,transform.rotation.z);
             isFacingRight = false;
         }
-        else if(moveDirection.x>0 && !isFacingRight)
+        else if(inputX>0 && !isFacingRight)
         {
             transform.rotation = Quaternion.Euler(transform.rotation.x, 0f, transform.rotation.z);
             isFacingRight = true;
